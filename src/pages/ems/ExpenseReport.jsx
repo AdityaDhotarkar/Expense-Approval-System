@@ -19,11 +19,15 @@ export default memo(function ExpenseReport(props) {
   const [staffDate, setStaffDate] = useState("");
   const [auditorDate, setAuditorDate] = useState("");
   const [approverDate, setApproverDate] = useState("");
-  const [selectTrust, setSelectTrust] = useState("SCSS");
+  const [staffEmail, setStaffEmail] = useState("");
+  const [auditorEmail, setAuditorEmail] = useState("");
+  const [approverEmail, setApproverEmail] = useState("");
+  const [selectTrust, setSelectTrust] = useState("");
   const [financialYear, setFinancialYear] = useState(new Date().getFullYear());
   const [status, setStatus] = useState("New");
   const [costCenter, setCostCenter] = useState("");
   const [mode, setMode] = useState("");
+  const [eId, setEId] = useState();
   const { user } = useSession();
   const history = useHistory();
   const privilages = GetUserPrivilages();
@@ -63,21 +67,21 @@ export default memo(function ExpenseReport(props) {
             .collection("expenses")
             .add({
               expenseNo: enumber,
-              status: expenseData.status,
-              generatedBy: expenseData.generatedBy,
-              financialYear: expenseData.financialYear,
+              status: status,
+              generatedBy: staffEmail,
+              financialYear: financialYear,
               createdDate: staffDate,
               approvedDate: approverDate,
               auditedDate: auditorDate,
-              auditedBy: user.email,
-              approvedBy: user.email,
+              auditedBy: auditorEmail,
+              approvedBy: approverEmail,
               commentByStaff: expenseData.commentByStaff,
               costCategory: expenseData.costCategory,
-              trust: expenseData.trust,
-              costCenter: expenseData.costCenter,
+              trust: selectTrust,
+              costCenter: costCenter,
               debitAccount: expenseData.debitAccount,
               paymentDate: expenseData.paymentDate,
-              mode: expenseData.mode,
+              mode: mode,
               ledger: expenseData.ledger,
               commentByAuditor: expenseData.commentByAuditor,
               cashAdvancesApplied: expenseData.cashAdvancesApplied,
@@ -86,6 +90,7 @@ export default memo(function ExpenseReport(props) {
               approverApprovedAmount: expenseData.auditorApprovedAmount,
             })
             .then((docRef) => {
+              let eId = docRef.id;
               alert("The Expense request raised Successfully.");
               setisLoading(false);
               history.pushState(`/expensedetails/${docRef.id}`);
@@ -96,129 +101,6 @@ export default memo(function ExpenseReport(props) {
         }
       });
     setisLoading(false);
-  };
-
-  const handleSelectTrust = async(e) => {
-    await firestore
-      .collection("expenses")
-      .doc(params.id)
-      .update({
-        trust:setSelectTrust(e.target.value),
-      })
-  }
-
-  const handleFinancialYear = async(e) => {
-    await firestore
-      .collection("expenses")
-      .doc(params.id)
-      .update({
-        financialYear: setFinancialYear(e.target.value),
-      })
-  }
-
-  const handleStatus = async(e) => {
-    if(privilages.isExpenseStaff)  
-    {
-      await firestore
-      .collection("expenses")
-      .doc(params.id)
-      .update({
-        status: setStatus("Submitted"),
-      })
-    }
-    else if(privilages.isExpenseAuditor)
-    {
-      await firestore
-      .collection("expenses")
-      .doc(params.id)
-      .update({
-        status: setStatus("Audited"),
-      })
-    }
-    else if((privilages.isExpenseApproverL1 || privilages.isExpenseApproverL2))
-    {
-      await firestore
-      .collection("expenses")
-      .doc(params.id)
-      .update({
-        status: setStatus("Approved"),
-      })
-    }
-  }
-
-  const handleCostCenter = async(e) => {
-    await firestore
-      .collection("expenses")
-      .doc(params.id)
-      .update({
-        costCenter: setCostCenter(e.target.value),
-      })
-  }
-  
-  const handleMode = async(e) => {
-    await firestore
-      .collection("expenses")
-      .doc(params.id)
-      .update({
-        mode: setMode(e.target.value),
-      })
-  }
-
-  const handleStaffDate = async (e) => {
-    if (privilages.isExpenseStaff) {
-      await firestore
-        .collection("expenses")
-        .doc(params.id)
-        .update({
-          createdDate: setStaffDate(new Date(e.target.value)),
-        });
-    }
-  };
-
-  const handleAuditorDate = async (e) => {
-    if (privilages.isExpenseAuditor) {
-      await firestore
-        .collection("expenses")
-        .doc(params.id)
-        .update({
-          createdDate: setAuditorDate(new Date(e.target.value)),
-        });
-    }
-  };
-
-  const handleApproverDate = async (e) => {
-    if (privilages.isExpenseApproverL1 || privilages.isExpenseApproverL2) {
-      await firestore
-        .collection("expenses")
-        .doc(params.id)
-        .update({
-          createdDate: setApproverDate(new Date(e.target.value)),
-        });
-    }
-  };
-
-  const handleStaffData = async (e) => {
-    if (privilages.isExpenseStaff) {
-      await firestore.collection("expenses").doc(params.id).update({
-        generatedBy: user.email,
-      });
-    }
-  };
-
-  const handleAuditorData = async (e) => {
-    if (privilages.isExpenseAuditor) {
-      await firestore.collection("expenses").doc(params.id).update({
-        auditedBy: user.email,
-      });
-    }
-  };
-
-  const handleApproverData = async (e) => {
-    if (privilages.isExpenseApproverL1 || privilages.isExpenseApproverL2) {
-      await firestore.collection("expenses").doc(params.id).update({
-        approvedBy: user.email,
-      });
-    }
   };
 
   const formClass = `${isLoading ? "ui form loading" : ""}`;
@@ -253,7 +135,20 @@ export default memo(function ExpenseReport(props) {
                 name="status"
                 className="form-control ml-2"
                 disabled="true"
-                onSubmit={handleStatus}
+                onSubmit={()=>{
+                  if(privilages.isExpenseStaff)
+                  {
+                    setStatus("Submitted");
+                  }
+                  else if(privilages.isExpenseAuditor)
+                  {
+                    setStatus("Audited")
+                  }
+                  else if(privilages.isExpenseApproverL1 || privilages.isExpenseApproverL2)
+                  {
+                    setStatus("Approved");
+                  }
+                }}
                 {...register("status")}
               >
                 <option value="new">New</option>
@@ -272,9 +167,12 @@ export default memo(function ExpenseReport(props) {
               <label className="m-2">Generated By:</label>
               <input
                 type="text"
-                placeholder="Kaushik Walsangkar"
-                value={handleStaffData}
-                onChange={handleStaffData}
+                onSubmit={() => {
+                  if(privilages.isExpenseStaff)
+                  {
+                    setStaffEmail(user.email);
+                  }
+                }}
                 className="form-control ml-2"
                 id="generatedBy"
                 name="generatedBy"
@@ -288,7 +186,9 @@ export default memo(function ExpenseReport(props) {
                 name="fyear"
                 id="fyear"
                 className="form-control ml-2"
-                onChange={handleFinancialYear}
+                onChange={(e)=>{
+                  setFinancialYear(e.target.value);
+                }}
                 {...register("financialYear")}
               >
                 <option value="21-22">2021-22</option>
@@ -308,10 +208,13 @@ export default memo(function ExpenseReport(props) {
                   className="form-control ml-2"
                   name="costCenter"
                   id="costCenter"
-                  onChange={handleCostCenter}
+                  onChange={(e)=>{
+                    setCostCenter(e.target.value);
+                  }}
                   {...register("costCenter")}
-                  {...(privilages.isExpenseAuditor ? "" : "disabled")}
+                  // {...(privilages.isExpenseAuditor ? "" : "disabled")}
                 >
+                  <option selected value="default"></option>
                   <option value="booksntoys">Books & Toys</option>
                   <option value="salary">Salary</option>
                   <option value="transport">Transport</option>
@@ -336,19 +239,23 @@ export default memo(function ExpenseReport(props) {
                 <label className="m-2">
                   Debit Account:<span className="text-danger">*</span>
                 </label>
-                <input
-                  type="text"
+                <select
                   className="form-control ml-2"
                   name="debitAccount"
-                  readOnly={
-                    privilages.isExpenseApproverL1 ||
-                    privilages.isExpenseApproverL2
-                      ? "true"
-                      : "false"
-                  }
-                  placeholder=""
+                  id="debitAccount"
                   {...register("debitAccount")}
-                />
+                  // readOnly={
+                  //   privilages.isExpenseApproverL1 ||
+                  //   privilages.isExpenseApproverL2
+                  //     ? "true"
+                  //     : "false"
+                  // }
+                >
+                  <option selected value="default"></option>
+                  <option value="debitAcc1"> Debit Account 1 </option>
+                  <option value="debitAcc2"> Debit Account 2 </option>
+                  <option value="debitAcc3"> Debit Account 3 </option>
+                </select>
               </div>
             </div>
           )}
@@ -359,35 +266,43 @@ export default memo(function ExpenseReport(props) {
             <div className="row mb-3">
               <div className="col-md-6">
                 <label className="m-2">Cost Category:</label>
-                <input
-                  type="text"
-                  placeholder="Please enter spiritual name here"
-                  className="form-control ml-2"
-                  id="costCategory"
+                <select
                   name="costCategory"
-                  readOnly={
-                    privilages.isExpenseApproverL1 ||
-                    privilages.isExpenseApproverL2
-                      ? "true"
-                      : "false"
-                  }
+                  id="coseCategory"
+                  className="form-control ml-2"
                   {...register("costCategory")}
-                />
+                  // readOnly={
+                  //   privilages.isExpenseApproverL1 ||
+                  //   privilages.isExpenseApproverL2
+                  //     ? "true"
+                  //     : "false"
+                  // }
+                >
+                  <option selected value="default"></option>
+                  <option value="costCategory1">Cost Category 1</option>
+                  <option value="costCategory2">Cost Category 2</option>
+                  <option value="costCategory3">Cost Category 3</option>
+                </select>
               </div>
               <div className="col-md-6">
                 <label className="m-2">Ledger:</label>
-                <input
-                  type="text"
-                  className="form-control ml-2"
+                <select
                   name="ledger"
-                  readOnly={
-                    privilages.isExpenseApproverL1 ||
-                    privilages.isExpenseApproverL2
-                      ? "true"
-                      : "false"
-                  }
+                  id="ledger"
+                  className="form-control ml-2"
+                  // readOnly={
+                  //   privilages.isExpenseApproverL1 ||
+                  //   privilages.isExpenseApproverL2
+                  //     ? "true"
+                  //     : "false"
+                  // }
                   {...register("ledger")}
-                />
+                >
+                  <option selected value="default"></option>
+                  <option value="ledger1">Ledger 1</option>
+                  <option value="ledger2">Ledger 2</option>
+                  <option value="ledger3">Ledger 3</option>
+                </select>
               </div>
             </div>
           )}
@@ -403,9 +318,12 @@ export default memo(function ExpenseReport(props) {
                   id="trust" 
                   className="form-control ml-2"
                   {...register("trust")}
-                  onChange={handleSelectTrust}
-                  {...(privilages.isExpenseAuditor ? "" : "disabled")}
+                  onChange={(e)=> {
+                      setSelectTrust(e.target.value)
+                  }}
+                  // {...(privilages.isExpenseAuditor ? "" : "disabled")}
                 >
+                  <option selected value="default"></option>
                   <option value="scss">SCSS</option>
                   <option value="crest">CREST</option>
                 </select>
@@ -419,7 +337,12 @@ export default memo(function ExpenseReport(props) {
               <input
                 type="date"
                 placeholder=""
-                value={handleStaffDate}
+                onSubmit={(e)=>{
+                  if(privilages.isExpenseStaff)
+                  {
+                    setStaffDate(new Date(e.target.value));
+                  }
+                }}
                 className="form-control ml-2"
                 id="createdDate"
                 name="createdDate"
@@ -432,7 +355,12 @@ export default memo(function ExpenseReport(props) {
               <input
                 type="date"
                 className="form-control ml-2"
-                value={handleAuditorDate}
+                onSubmit={(e)=>{
+                  if(privilages.isExpenseAuditor)
+                  {
+                    setAuditorDate(new Date(e.target.value));
+                  }
+                }}
                 name="auditedDate"
                 readonly
                 {...register("auditedDate")}
@@ -446,7 +374,12 @@ export default memo(function ExpenseReport(props) {
               <input
                 type="date"
                 placeholder=""
-                value={handleApproverDate}
+                onSubmit={(e) => {
+                  if(privilages.isExpenseApproverL1 || privilages.isExpenseApproverL2)
+                  {
+                    setApproverDate(new Date(e.target.value));
+                  }
+                }}
                 className="form-control ml-2"
                 id="dob"
                 name="approvedDate"
@@ -470,8 +403,12 @@ export default memo(function ExpenseReport(props) {
               <label className="m-2">Audited By:</label>
               <input
                 type="text"
-                placeholder="BMS Manager"
-                onSubmit={handleAuditorData}
+                onSubmit={()=>{
+                  if(privilages.isExpenseAuditor)
+                  {
+                    setAuditorEmail(user.email);
+                  }
+                }}
                 className="form-control ml-2"
                 id="auditedBy"
                 name="auditedBy"
@@ -484,9 +421,13 @@ export default memo(function ExpenseReport(props) {
               <input
                 type="text"
                 className="form-control ml-2"
-                onSubmit={handleApproverData}
+                onSubmit={()=>{
+                  if(privilages.isExpenseApproverL1 || privilages.isExpenseApproverL2)
+                  {
+                    setApproverEmail(user.email);
+                  }
+                }}
                 name="approvedBy"
-                placeholder="Sanjay Hinduja"
                 readOnly
                 {...register("approvedBy")}
               />
@@ -505,13 +446,13 @@ export default memo(function ExpenseReport(props) {
                 className="form-control ml-2"
                 id="commentByStaff"
                 name="commentByStaff"
-                readOnly={
-                  privilages.isExpenseApproverL1 ||
-                  privilages.isExpenseApproverL2 ||
-                  privilages.isExpenseAuditor
-                    ? "true"
-                    : "false"
-                }
+                // readOnly={
+                //   privilages.isExpenseApproverL1 ||
+                //   privilages.isExpenseApproverL2 ||
+                //   privilages.isExpenseAuditor
+                //     ? "true"
+                //     : "false"
+                // }
                 {...register("commentByStaff")}
               />
             </div>
@@ -522,13 +463,13 @@ export default memo(function ExpenseReport(props) {
                 type="text"
                 className="form-control ml-2"
                 name="commentByAuditor"
-                readOnly={
-                  privilages.isExpenseApproverL1 ||
-                  privilages.isExpenseApproverL2 ||
-                  privilages.isExpenseStaff
-                    ? "true"
-                    : "false"
-                }
+                // readOnly={
+                //   privilages.isExpenseApproverL1 ||
+                //   privilages.isExpenseApproverL2 ||
+                //   privilages.isExpenseStaff
+                //     ? "true"
+                //     : "false"
+                // }
                 {...register("commentByAuditor")}
               />
             </div>
@@ -543,11 +484,11 @@ export default memo(function ExpenseReport(props) {
                 className="form-control ml-2"
                 id="commentByApprover"
                 name="commentByApprover"
-                readOnly={
-                  privilages.isExpenseStaff || privilages.isExpenseAuditor
-                    ? "true"
-                    : "false"
-                }
+                // readOnly={
+                //   privilages.isExpenseStaff || privilages.isExpenseAuditor
+                //     ? "true"
+                //     : "false"
+                // }
                 {...register("commentByApprover")}
               />
             </div>
@@ -591,13 +532,13 @@ export default memo(function ExpenseReport(props) {
                 className="form-control ml-2"
                 id="cashAdvancesApplied"
                 name="cashAdvancesApplied"
-                readOnly={
-                  privilages.isExpenseApproverL1 ||
-                  privilages.isExpenseApproverL2 ||
-                  privilages.isExpenseStaff
-                    ? "true"
-                    : "false"
-                }
+                // readOnly={
+                //   privilages.isExpenseApproverL1 ||
+                //   privilages.isExpenseApproverL2 ||
+                //   privilages.isExpenseStaff
+                //     ? "true"
+                //     : "false"
+                // }
                 {...register("cashAdvancesApplied")}
               />
             </div>
@@ -648,9 +589,12 @@ export default memo(function ExpenseReport(props) {
                 className="form-control ml-2"
                 name="mode"
                 id="mode"
-                onChange={handleMode}
+                onChange={(e)=>{
+                  setMode(e.target.value);
+                }}
                 {...register("mode")}
               >
+                <option selected value="default"></option>
                 <option value="enet">ENET</option>
                 <option value="cheque">Cheque</option>
                 <option value="cash">Cash</option>
@@ -658,13 +602,16 @@ export default memo(function ExpenseReport(props) {
             </div>
             <div className="col-md-6">
               <label className="m-2">Bank Account:</label>
-              <input
-                placeholder=""
-                type="text"
+              <select
                 className="form-control ml-2"
-                name="phone"
-                {...register("phone")}
-              />
+                name="bankAccount"
+                id="bankAccount"
+              >
+                <option selected value="default"></option>
+                <option value="bankacc1">Bank Account 1</option>
+                <option value="bankacc2">Bank Account 2</option>
+                <option value="bankacc3">Bank Account 3</option>
+              </select>
             </div>
           </div>
 
@@ -684,7 +631,7 @@ export default memo(function ExpenseReport(props) {
               <label className="m-2">Bank Transaction Date:</label>
               <input
                 placeholder=""
-                type="text"
+                type="date"
                 className="form-control ml-2"
                 name="phone"
                 {...register("phone")}

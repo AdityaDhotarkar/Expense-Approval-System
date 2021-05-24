@@ -29,12 +29,15 @@ export default memo(function AddNewItem() {
           description: billData.description,
           billURL: billData.billURL,
         })
-        .then(async (res) => {
+        .then((docRef) => {
+          alert("The Bill Report has been added Suceessfully.");
+          history.push(`/expensereport/`);
           setisLoading(false);
         });
 
       };
       useEffect(()=>{
+        
         const docRef = firestore.collection('expenses').doc(params.id);
       }, [user.uid, params.id]);
 

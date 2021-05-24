@@ -6,7 +6,7 @@ export const updateUserDocument = async (expenses) => {
   };
   
   export const uploadImage = (userId, file, progress) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => { 
       // create file reference
       const filePath = `expenses/${userId}/` + file.name;
       const fileRef = storage.ref().child(filePath);
