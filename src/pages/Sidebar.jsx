@@ -13,6 +13,7 @@ function Sidebar() {
   const [donorNavMenuDropdown, setDonorNavMenuDropdown] = useState(false);
   const [admissionNavMenuDropdown, setAdmissionNavMenuDropdown] = useState(false);
   const [parentsNavMenuDropdown, setParentsNavMenuDropdown] = useState(false);
+  const [expenseNavMenuDropdown, setExpenseNavMenuDropdown] = useState(false);
 
 
   const showSidebar = () => setNavBar(!navbar);
@@ -29,6 +30,10 @@ function Sidebar() {
 
   const toggleAdmissionNavMenuDropdown = () => {
     setAdmissionNavMenuDropdown(!admissionNavMenuDropdown);
+  };
+  
+  const toggleExpenseNavMenuDropdown = () => {
+    setExpenseNavMenuDropdown(!expenseNavMenuDropdown);
   };
 
   const toggleParentsNavMenuDropdown = () => {
@@ -178,13 +183,32 @@ function Sidebar() {
                     </li>
                   )}
 
-                  {(privilages.isExpenseStaff || privilages.isExpenseAuditor || privilages.isExpenseApproverL1 || privilages.isExpenseApproverL2) &&( 
-                    <li className="nav-item pb-4 text-center">
-                      <Link className="sidebar-menu-item" to="/expensereport">
-                        Expense Management System
-                      </Link>
+                  {(privilages.isExpenseStaff || privilages.isExpenseAuditor || privilages.isExpenseApproverL1 || privilages.isExpenseApproverL2) && 
+                  (
+                    <li className="nav-item text-center">
+                       <button
+                        className="btn btn-link sidebar-menu-item"
+                        onClick={toggleExpenseNavMenuDropdown}
+                      >
+                      Expense Management System
+                      </button>
+                      <nav
+                        className={`col bg-light ${
+                          expenseNavMenuDropdown ? "showMenu" : "hideMenu"
+                        }`}
+                      >
+                        <ul className="nav flex-column pl-2">
+                        <li className="nav-item pb-4">
+                            <Link className="sidebar-menu-item" to="/expensereport">
+                              - Add a Expense Request
+                            </Link>
+                          </li>
+                        </ul>
+                      </nav>
+
                     </li>
                   )}
+
                 </ul>
               </div>``
             </nav>
