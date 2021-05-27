@@ -5,6 +5,7 @@ import { firestore, storage } from "../../firebase/config";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 import { useSession } from "../../firebase/UserProvider";
+import { eID } from "./ExpenseReport";
 
 // import { ErrorMessage } from "@hookform/error-message";
 import { BillUpload } from "./BillUpload";
@@ -12,7 +13,6 @@ import { BillUpload } from "./BillUpload";
 export default memo(function AddNewItem() {
     const { register, setValue, errors, handleSubmit } = useForm();
     const [isLoading, setisLoading] = useState(false);
-    const [billId, setBillId] = useState("");
     const params = useParams();
     const history = useHistory();
     const user = useSession();
@@ -31,9 +31,8 @@ export default memo(function AddNewItem() {
           billURL: billData.billURL,
         })
         .then((docRef) => {
-          setBillId(docRef);
           alert("The Bill Report has been added Suceessfully.");
-          history.push(`/expensereport/`);
+          history.push(`/expensereport`);
           setisLoading(false);
         });
 
@@ -127,9 +126,9 @@ export default memo(function AddNewItem() {
               </div>
             </div>
   
-            {/* <div className="row-mb-3">
-              <BillUpload id={billId}/>
-            </div> */}
+            <div className="row-mb-3">
+              <BillUpload id={params.id}/>
+            </div>
   
             <div className="row mb-3 ">
               <div className="col justify-content-center d-flex">
