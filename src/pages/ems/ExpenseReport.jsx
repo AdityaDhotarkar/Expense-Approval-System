@@ -710,6 +710,14 @@ export default memo(function ExpenseReport(props) {
             </div>
           </div>
 
+        </form>
+      </div>
+
+      <div className="mt-3">
+        <div className="justify-content-center d-flex">
+          <h2>Bill Details</h2>
+        </div>
+      </div>
           {privilages.isExpenseStaff && (
             <div className="row-mb-3">
               <div className="col justify-content-center d-flex">
@@ -720,20 +728,11 @@ export default memo(function ExpenseReport(props) {
                     history.push(`/expensereport/bill`)
                   }}
                 >
-                  {/* <Link to={`/expensereport/bill`}>Add Expense Line Item</Link> */}
                   Add Expense Line Item
                 </button>
               </div>
             </div>
           )}
-        </form>
-      </div>
-
-      <div className="mt-3">
-        <div className="justify-content-center d-flex">
-          <h2>Bill Details</h2>
-        </div>
-      </div>
 
       <div className="table-responsive">
         <table className="table table-bordered">

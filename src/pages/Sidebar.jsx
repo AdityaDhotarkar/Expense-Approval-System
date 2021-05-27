@@ -31,14 +31,15 @@ function Sidebar() {
   const toggleAdmissionNavMenuDropdown = () => {
     setAdmissionNavMenuDropdown(!admissionNavMenuDropdown);
   };
-  
-  const toggleExpenseNavMenuDropdown = () => {
-    setExpenseNavMenuDropdown(!expenseNavMenuDropdown);
-  };
 
   const toggleParentsNavMenuDropdown = () => {
     setParentsNavMenuDropdown(!parentsNavMenuDropdown);
   };
+
+  const toggleExpenseNavMenuDropdown = () => {
+    setExpenseNavMenuDropdown(!expenseNavMenuDropdown);
+  };
+
   return (
     <>
       {user && (

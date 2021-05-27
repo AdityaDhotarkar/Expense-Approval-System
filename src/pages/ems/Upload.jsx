@@ -8,7 +8,7 @@ export const updateUserDocument = async (expenses) => {
   export const uploadImage = (userId, file, progress) => {
     return new Promise((resolve, reject) => { 
       // create file reference
-      const filePath = `expenses/${userId}/` + file.name;
+      const filePath = `expenses/${userId}/bill-image`;
       const fileRef = storage.ref().child(filePath);
   
       // upload task
@@ -25,8 +25,8 @@ export const updateUserDocument = async (expenses) => {
     });
   };
   
-  export const getDownloadUrl = (userId) => {
-    const filePath = `expenses/${userId}/`;
+  export const getDownloadUrl = (billId) => {
+    const filePath = `expenses/${billId}/bill-image`;
     return storage.ref().child(filePath).getDownloadURL();
   };
   

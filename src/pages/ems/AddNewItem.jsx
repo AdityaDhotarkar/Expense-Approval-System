@@ -12,6 +12,7 @@ import { BillUpload } from "./BillUpload";
 export default memo(function AddNewItem() {
     const { register, setValue, errors, handleSubmit } = useForm();
     const [isLoading, setisLoading] = useState(false);
+    const [billId, setBillId] = useState("");
     const params = useParams();
     const history = useHistory();
     const user = useSession();
@@ -30,6 +31,7 @@ export default memo(function AddNewItem() {
           billURL: billData.billURL,
         })
         .then((docRef) => {
+          setBillId(docRef);
           alert("The Bill Report has been added Suceessfully.");
           history.push(`/expensereport/`);
           setisLoading(false);
@@ -125,9 +127,9 @@ export default memo(function AddNewItem() {
               </div>
             </div>
   
-            <div className="row-mb-3">
-              <BillUpload id={params.id}/>
-            </div>
+            {/* <div className="row-mb-3">
+              <BillUpload id={billId}/>
+            </div> */}
   
             <div className="row mb-3 ">
               <div className="col justify-content-center d-flex">
