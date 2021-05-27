@@ -5,6 +5,7 @@ import { firestore } from "../../firebase/config";
 import { useSession } from "../../firebase/UserProvider";
 import { Link, useParams } from "react-router-dom";
 import { GetUserPrivilages } from "../../firebase/UserPrivilageProvider";
+import BillDetails from "./BillDetails";
 
 export default memo(function ExpenseReport(props) {
   const {
@@ -32,6 +33,13 @@ export default memo(function ExpenseReport(props) {
   const history = useHistory();
   const privilages = GetUserPrivilages();
   const params = useParams();
+  const [expenses, setExpenses] = useState(null);
+  const [expenseBillDetails, setExpenseBillDetails] = useState({
+    auditorApprovedAmount : "",
+    auditorComment : "",
+    approverApprovedAmount : "",
+    approverComment : "",
+  });
 
   function generateSerial() {
     var chars = "1234567890",
@@ -710,14 +718,6 @@ export default memo(function ExpenseReport(props) {
             </div>
           </div>
 
-        </form>
-      </div>
-
-      <div className="mt-3">
-        <div className="justify-content-center d-flex">
-          <h2>Bill Details</h2>
-        </div>
-      </div>
           {privilages.isExpenseStaff && (
             <div className="row-mb-3">
               <div className="col justify-content-center d-flex">
@@ -728,11 +728,20 @@ export default memo(function ExpenseReport(props) {
                     history.push(`/expensereport/bill`)
                   }}
                 >
+                  {/* <Link to={`/expensereport/bill`}>Add Expense Line Item</Link> */}
                   Add Expense Line Item
                 </button>
               </div>
             </div>
           )}
+        </form>
+      </div>
+
+      <div className="mt-3">
+        <div className="justify-content-center d-flex">
+          <h2>Bill Details</h2>
+        </div>
+      </div>
 
       <div className="table-responsive">
         <table className="table table-bordered">
@@ -751,6 +760,12 @@ export default memo(function ExpenseReport(props) {
               <th>Action</th>
             </tr>
           </thead>
+          <tbody>
+            <BillDetails
+              expenses = {expenses}
+              bills = {expenseBillDetails}
+            />
+          </tbody>
         </table>
       </div>
     </div>
