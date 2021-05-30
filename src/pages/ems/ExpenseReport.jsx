@@ -718,6 +718,9 @@ export default memo(function ExpenseReport(props) {
             </div>
           </div>
 
+        </form>
+      </div>
+
           {privilages.isExpenseStaff && (
             <div className="row-mb-3">
               <div className="col justify-content-center d-flex">
@@ -734,9 +737,6 @@ export default memo(function ExpenseReport(props) {
               </div>
             </div>
           )}
-        </form>
-      </div>
-
       <div className="mt-3">
         <div className="justify-content-center d-flex">
           <h2>Bill Details</h2>
