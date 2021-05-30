@@ -746,7 +746,7 @@ export default memo(function ExpenseReport(props) {
           </div>
         </form>
       </div>
-
+         
       <div className="mt-3">
         <div className="justify-content-center d-flex">
           <h2>Bill Details</h2>
@@ -796,7 +796,7 @@ export default memo(function ExpenseReport(props) {
           </div>
         ) : (
           <div className="justify-content-center d-flex">
-            <h3></h3>
+            <h3>No Bill Details</h3>
           </div>      
         )}
       </div>
