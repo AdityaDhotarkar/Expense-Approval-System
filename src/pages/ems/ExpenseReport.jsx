@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import { firestore } from "../../firebase/config";
@@ -10,11 +10,13 @@ import BillDetails from "./BillDetails";
 export default memo(function ExpenseReport(props) {
   const {
     register,
-    setvalue,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
+  const[expenseLineItems, setExpenseLineItems] = useState(null);
+  const[doesItemExist, itemExists] = useState(false);
   const [isLoading, setisLoading] = useState(false);
   const [error, setError] = useState(false);
   const [staffDate, setStaffDate] = useState("");
@@ -58,7 +60,7 @@ export default memo(function ExpenseReport(props) {
   const expenseReport = async (expenseData) => {
     setisLoading(true);
 
-    let enumber = expenseData.expenseNo.generateSerial();
+    let enumber = expenseData.expenseNo;
     const equery = firestore
       .collection(`expenses`)
       .where("expenseNo", "==", "enumber");
@@ -110,6 +112,30 @@ export default memo(function ExpenseReport(props) {
       });
     setisLoading(false);
   };
+  
+  useEffect(async () => {
+    const expenseReportId = params.reportId;
+    const docRef = firestore.collection("expenses").doc(expenseReportId);
+    docRef.onSnapshot((snapshot)=> {
+      if (snapshot.exists){
+        const data = snapshot.data();
+
+        setValue("auditorApprovedAmount",data.auditorApprovedAmount);
+        setValue("auditorComment",data.auditorComment);
+        setValue("approverApprovedAmount",data.approverApprovedAmount);
+        setValue("approverComment",data.approverComment);
+        
+        setExpenseBillDetails({
+          auditorApprovedAmount : data.auditorApprovedAmount,
+          auditorComment : data.auditorComment,
+          approverApprovedAmount : data.approverApprovedAmount,
+          approverComment : data.approverComment,
+        })
+
+      }
+
+    })
+  })
 
   const formClass = `${isLoading ? "ui form loading" : ""}`;
   return (
@@ -684,6 +710,7 @@ export default memo(function ExpenseReport(props) {
             </>
           )}
 
+          
           {(privilages.isExpenseApproverL1 ||
             privilages.isExpenseApproverL2) && (
             <div className="row-mb-3">
@@ -717,23 +744,6 @@ export default memo(function ExpenseReport(props) {
               </button>{" "}
             </div>
           </div>
-
-          {privilages.isExpenseStaff && (
-            <div className="row-mb-3">
-              <div className="col justify-content-center d-flex">
-                <button
-                  type="button"
-                  className="btn btn-primary mr-2 text-white"
-                  onClick = {() => {
-                    history.push(`/expensereport/bill`)
-                  }}
-                >
-                  {/* <Link to={`/expensereport/bill`}>Add Expense Line Item</Link> */}
-                  Add Expense Line Item
-                </button>
-              </div>
-            </div>
-          )}
         </form>
       </div>
 
@@ -741,32 +751,54 @@ export default memo(function ExpenseReport(props) {
         <div className="justify-content-center d-flex">
           <h2>Bill Details</h2>
         </div>
-      </div>
+        {privilages.isExpenseStaff && (
+          <div className="row-mb-3">
+            <div className="col justify-content-center d-flex">
+              <Link to={`/expensereport/bill`}>Add Expense Line Item</Link> 
+              {/*<button
+                type="button"
+                className="btn btn-primary mr-2 text-white"
+                onClick = {() => {
+                  history.push(`/expensereport/bill`)
+                }
+              > 
+                Add Expense Line Item
+              </button>*/}
+            </div>
+          </div>
+        )}
 
-      <div className="table-responsive">
-        <table className="table table-bordered">
-          <thead>
-            <tr>
-              <th>Expense Date</th>
-              <th>Bill No.</th>
-              <th>Claimed Amount</th>
-              <th>Vendor</th>
-              <th>Description</th>
-              <th>Auditor Approved Amount</th>
-              <th>Auditor Comment</th>
-              <th>Approver Approved Amount</th>
-              <th>Approver Comment</th>
-              <th>Bill/Invoice</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <BillDetails
-              expenses = {expenses}
-              bills = {expenseBillDetails}
-            />
-          </tbody>
-        </table>
+        {doesItemExist && expenseLineItems ? (
+          <div className="table-responsive">
+            <table className="table table-bordered">
+              <thead>
+                <tr>
+                  <th>Expense Date</th>
+                  <th>Bill No.</th>
+                  <th>Claimed Amount</th>
+                  <th>Vendor</th>
+                  <th>Description</th>
+                  <th>Auditor Approved Amount</th>
+                  <th>Auditor Comment</th>
+                  <th>Approver Approved Amount</th>
+                  <th>Approver Comment</th>
+                  <th>Bill/Invoice</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/*<BillDetails
+                  expenseLineItems = {expense-line-items}
+                  expenseBillDetails = {expenseBillDetails}
+                />*/}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="justify-content-center d-flex">
+            <h3></h3>
+          </div>      
+        )}
       </div>
     </div>
   );

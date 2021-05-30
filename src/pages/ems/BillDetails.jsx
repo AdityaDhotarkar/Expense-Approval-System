@@ -1,7 +1,7 @@
 import React,{memo, useState} from 'react';
 
 export default memo(function BillDetails({
-    expenses, 
+    expenseLineItems, 
     expenseBillDetails,
 }){
     const [auditorApprovedAmount, setAuditorApprovedAmount] = useState("");
