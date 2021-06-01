@@ -116,7 +116,7 @@ function App() {
 
                 <PrivateEMSRoute 
                   exact
-                  path="/expensereport/bill"
+                  path="/expensereport/bill/:eId"
                   component={AddNewItem}
                 />
 

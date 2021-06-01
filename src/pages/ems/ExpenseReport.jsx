@@ -30,7 +30,7 @@ export default memo(function ExpenseReport(props) {
   const [status, setStatus] = useState("New");
   const [costCenter, setCostCenter] = useState("");
   const [mode, setMode] = useState("");
-  const [eId, setEId] = useState();
+  const [eId, setEId] = useState(null);
   const { user } = useSession();
   const history = useHistory();
   const privilages = GetUserPrivilages();
@@ -101,6 +101,7 @@ export default memo(function ExpenseReport(props) {
             })
             .then((docRef) => {
               let eId = docRef.id;
+              setEId(eId);
               alert("The Expense request raised Successfully.");
               setisLoading(false);
               history.pushState(`/expensedetails/${docRef.id}`);
@@ -751,10 +752,10 @@ export default memo(function ExpenseReport(props) {
         <div className="justify-content-center d-flex">
           <h2>Bill Details</h2>
         </div>
-        {privilages.isExpenseStaff && (
+        {privilages.isExpenseStaff && eId && (
           <div className="row-mb-3">
             <div className="col justify-content-center d-flex">
-              <Link to={`/expensereport/bill`}>Add Expense Line Item</Link> 
+              <Link to={`/expensereport/bill/${eId}`}>Add Expense Line Item</Link> 
               {/*<button
                 type="button"
                 className="btn btn-primary mr-2 text-white"
