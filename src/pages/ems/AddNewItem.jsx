@@ -20,7 +20,7 @@ export default memo(function AddNewItem() {
     const acceptBill = async (billData) => {
       await firestore
         .collection("expenses")
-        .doc(params.eID)
+        .doc(params.eId)
         .collection("expenseLineItems")
         .add({
           amount: billData.amount,
