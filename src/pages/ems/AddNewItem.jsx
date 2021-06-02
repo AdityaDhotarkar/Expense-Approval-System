@@ -146,8 +146,7 @@ export default memo(function AddNewItem() {
                   Cancel
                 </button>
               </div>
-            </div>
-  
+            </div>  
           </form>
         </div>
       </div>
