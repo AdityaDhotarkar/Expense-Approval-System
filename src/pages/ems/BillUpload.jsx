@@ -1,51 +1,60 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { uploadImage, getDownloadUrl } from './Upload';
+import React, { useState } from "react";
+import { render } from "react-dom";
+import { storage } from "../../firebase/config";
+import receipt from "../../img/receipt.png";
 
-export const BillUpload = ({ id }) => {
-  const fileInput = useRef(null);
-  const [imageUrl, setImageUrl] = useState('');
-  const [uploadProgress, setUploadProgress] = useState(0);
+export const BillUpload = () => {
+  const [image, setImage] = useState(null);
+  const [url, setUrl] = useState("");
+  const [progress, setProgress] = useState(0);
 
-  useEffect(() => {
-    getDownloadUrl(id).then((url) => !!url && setImageUrl(url));
-  }, [id]);
-
-  const fileChange = async (files) => {
-    const ref = await uploadImage(id, files[0], updateProgress);
-    const downloadUrl = await ref.getDownloadURL();
-    setImageUrl(downloadUrl);
+  const handleChange = (e) => {
+    if (e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
   };
 
-  const updateProgress = (snapshot) => {
-    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-    setUploadProgress(progress);
+  const handleUpload = () => {
+    const uploadTask = storage.ref(`expenses/${image.name}`).put(image);
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        setProgress(progress);
+      },
+      (error) => {
+        console.log(error);
+      },
+      () => {
+        storage
+          .ref("expenses")
+          .child(image.name)
+          .getDownloadURL()
+          .then((url) => {
+            setUrl(url);
+          });
+      }
+    );
   };
+
+  console.log("image: ", image);
 
   return (
-    <div className="four wide column profile-image">
+    <div>
+      <progress value={progress} max="100" />
+      <br />
+      <br />
+      <input type="file" onChange={handleChange} />
+      <button onClick={handleUpload}>Upload</button>
+      <br />
+      {url}
+      <br />
       <img
-        className="ui image"
-        src={imageUrl || '/profile-placeholder.png'}
-        alt="profile"
+        src={url || receipt}
+        alt="firebase-img"
       />
-      <input
-        className="file-input"
-        type="file"
-        accept=".png,.jpg"
-        ref={fileInput}
-        onChange={(e) => fileChange(e.target.files)}
-      />
-      <progress
-        style={{ width: '100%' }}
-        max="100"
-        value={uploadProgress}
-      ></progress>
-      <button
-        className="ui grey button upload-button"
-        onClick={() => fileInput.current.click()}
-      >
-        Upload Bill/Invoice
-      </button>
     </div>
   );
 };

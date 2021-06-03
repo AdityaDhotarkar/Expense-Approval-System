@@ -127,7 +127,7 @@ export default memo(function AddNewItem() {
             </div>
   
             <div className="row-mb-3">
-              <BillUpload id={params.id}/>
+              <BillUpload />
             </div>
   
             <div className="row mb-3 ">
