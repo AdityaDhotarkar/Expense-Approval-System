@@ -726,15 +726,6 @@ export default memo(function ExpenseReport(props) {
 
           <div className="row mb-3 ">
             <div className="col justify-content-center d-flex">
-              <button
-                type="button"
-                className="btn btn-primary mr-2"
-                onClick={(e) => {
-                  history.push(`/expensereport/${params.id}}`);
-                }}
-              >
-                Save
-              </button>
               <button type="submit" className="btn btn-primary mr-2">
                 Submit
               </button>{" "}
