@@ -100,11 +100,10 @@ export default memo(function ExpenseReport(props) {
               approverApprovedAmount: expenseData.auditorApprovedAmount,
             })
             .then((docRef) => {
+              alert("The Expense request has been Saved Successfully and Please add Bill Items.");
               let eId = docRef.id;
               setEId(eId);
-              alert("The Expense request raised Successfully.");
               setisLoading(false);
-              history.pushState(`/expensedetails/${docRef.id}`);
             });
         } else {
           // throw error
